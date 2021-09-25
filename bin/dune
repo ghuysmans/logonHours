@@ -1,4 +1,4 @@
 (executable
  (name main)
  (public_name logonHours)
- (libraries logonhours cmdliner))
+ (libraries logonhours cmdliner smartschool unix))
