@@ -18,6 +18,9 @@ class wrapper bias raw = object(self)
   method to_string =
     Array.map char_of_int raw |> Array.to_seq |> String.of_seq
 
+  method to_escaped =
+    Array.map (Printf.sprintf "\\%02x") raw |> Array.to_list |> String.concat ""
+
   method get d h =
     let {index; mask} = locate ~bias d h in
     raw.(index) land mask <> 0
