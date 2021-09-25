@@ -54,6 +54,11 @@ class wrapper bias raw = object(self)
       incr i; if !i >= 7 * 24 then i := !i - 7 * 24
     );
     local
+
+  method count =
+    let ct = ref 0 in
+    self#iter (fun allowed -> if allowed then incr ct);
+    !ct
 end
 
 let of_string ~bias s =
