@@ -1,4 +1,4 @@
-open Raw
+open LogonHours
 
 let dump l =
   for d = 0 to 6 do

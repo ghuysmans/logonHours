@@ -1,3 +1,5 @@
+module Day = Day
+
 type t = {
   index: int;
   mask: int;
