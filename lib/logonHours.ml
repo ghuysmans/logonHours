@@ -15,6 +15,11 @@ let locate ~bias d h =
   in
   {index = d * 3 + h / 8; mask = 1 lsl (h land 7)}
 
+let%test "p-6 first" = locate ~bias:(-6) Day.Sunday 0 = {index = 0; mask = 64}
+let%test "p-6 last" = locate ~bias:(-6) Day.Saturday 23 = {index = 0; mask = 32}
+let%test "p0" = locate ~bias:0 Day.Sunday 0 = {index = 0; mask = 1}
+let%test "p1" = locate ~bias:1 Day.Sunday 1 = {index = 0; mask = 1}
+
 class wrapper bias raw = object(self)
   method to_string =
     Array.map char_of_int raw |> Array.to_seq |> String.of_seq
@@ -63,3 +68,17 @@ let of_string ~bias s =
 let make ~bias =
   let raw = Array.make 21 0 in
   new wrapper bias raw
+
+let%test "set" =
+  let w = make ~bias:0 in
+  w#set Day.Monday 8;
+  w#get Day.Monday 8
+
+let%test "utc" =
+  let w = make ~bias:1 in
+  w#set Day.Monday 8; (* so that it's not all zeros *)
+  w#to_string = (of_string ~bias:0 w#to_string)#to_string
+
+let%test "l-6" = ignore (make ~bias:(-6))#to_local; true
+let%test "l0" = ignore (make ~bias:0)#to_local; true
+let%test "l1" = ignore (make ~bias:1)#to_local; true

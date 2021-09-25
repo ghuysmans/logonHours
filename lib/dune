@@ -1,1 +1,4 @@
-(library (name logonHours) (public_name logonhours))
+(library
+ (name logonHours)
+ (public_name logonhours)
+ (inline_tests) (preprocess (pps ppx_inline_test)))

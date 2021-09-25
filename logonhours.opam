@@ -9,5 +9,6 @@ dev-repo: "git+https://github.com/ghuysmans/logonhours/"
 build: [["dune" "build" "-p" name "-j" jobs]]
 depends: [
   "dune" {>= "2.7"}
+  "ppx_inline_test"
 ]
 synopsis: "logonHours AD attribute manipulation library"
