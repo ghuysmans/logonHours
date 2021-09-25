@@ -6,14 +6,8 @@ type t = {
 }
 
 let locate ~bias d h =
-  let d = Day.to_int d in
-  let d, h =
-    if h < bias then
-      (d + 6) mod 7, h + 24 - bias
-    else
-      d, h - bias
-  in
-  {index = d * 3 + h / 8; mask = 1 lsl (h land 7)}
+  let t = (Day.to_int d * 24 + h - bias + 7 * 24) mod (7 * 24) in
+  {index = t / 8; mask = 1 lsl (t land 7)}
 
 let%test "p-6 first" = locate ~bias:(-6) Day.Sunday 0 = {index = 0; mask = 64}
 let%test "p-6 last" = locate ~bias:(-6) Day.Saturday 23 = {index = 0; mask = 32}
@@ -51,7 +45,7 @@ class wrapper bias raw = object(self)
 
   method to_local =
     let local = Array.make (7 * 3 * 8) false in
-    let i = ref bias in
+    let i = ref ((bias + 7 * 24) mod (7 * 24)) in
     self#iter (fun allowed ->
       local.(!i) <- allowed;
       incr i; if !i >= 7 * 24 then i := !i - 7 * 24
@@ -64,6 +58,10 @@ let of_string ~bias s =
     String.to_seq s |> Array.of_seq |> Array.map int_of_char |> new wrapper bias
   else
     failwith "LogonHours.of_string: invalid length"
+
+let%test "of_string" =
+  let w = of_string ~bias:(-6) "\x1F\x00\x1C\x00\xE0\xFF\x00\xE0\xFF\x3F\xE0\xFF\x00\x00\xF0\x03\xE0\xFF\x00\xC0\x1F" in
+  w#get Day.Monday 7 && w#get Day.Monday 17 && not (w#get Day.Monday 18)
 
 let make ~bias =
   let raw = Array.make 21 0 in
