@@ -42,6 +42,16 @@ let to_local raw bias =
   done;
   local
 
+let dump l =
+  for d = 0 to 6 do
+    print_int d;
+    print_char ' ';
+    for h = 0 to 23 do
+      print_char (if l.(d * 24 + h) then '1' else '0')
+    done;
+    print_newline ()
+  done
+
 
 let () =
   let raw = [|
@@ -54,6 +64,8 @@ let () =
     0; 0; 0;
   |] in
   let bias = 1 in
+  let l = to_local raw bias in
+  dump l;
   let d = Day.of_string Sys.argv.(1) in
   let h = int_of_string Sys.argv.(2) in
   if get ~bias raw d h then
