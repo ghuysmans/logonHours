@@ -1,4 +1,9 @@
-let allowed ~bias raw d h =
+type t = {
+  index: int;
+  mask: int;
+}
+
+let locate ~bias d h =
   let d = Day.to_int d in
   let d, h =
     if h < bias then
@@ -6,8 +11,19 @@ let allowed ~bias raw d h =
     else
       d, h - bias
   in
-  let i = d * 3 + h / 8 in
-  raw.(i) land (1 lsl (h land 7)) > 0
+  {index = d * 3 + h / 8; mask = 1 lsl (h land 7)}
+
+let get ~bias raw d h =
+  let {index; mask} = locate ~bias d h in
+  raw.(index) land mask <> 0
+
+let set ~bias raw d h =
+  let {index; mask} = locate ~bias d h in
+  raw.(index) <- raw.(index) lor mask
+
+let clear ~bias raw d h =
+  let {index; mask} = locate ~bias d h in
+  raw.(index) <- raw.(index) land (lnot mask)
 
 let to_local raw bias =
   let local = Array.make (7 * 3 * 8) false in
@@ -40,7 +56,7 @@ let () =
   let bias = 1 in
   let d = Day.of_string Sys.argv.(1) in
   let h = int_of_string Sys.argv.(2) in
-  if allowed ~bias raw d h then
+  if get ~bias raw d h then
     print_endline "allowed"
   else
     print_endline "denied"
