@@ -2,11 +2,11 @@ let allowed ~bias raw d h =
   let d = Day.to_int d in
   let d, h =
     if h < bias then
-      (if d = 0 then 6 else d - 1), h + 24 - bias
+      (d + 6) mod 7, h + 24 - bias
     else
       d, h - bias
   in
-  let i = d * 3 + h lsr 3 in
+  let i = d * 3 + h / 8 in
   raw.(i) land (1 lsl (h land 7)) > 0
 
 let to_local raw bias =
@@ -18,7 +18,7 @@ let to_local raw bias =
       let m = ref 1 in
       while !m <= 128 do
         local.(!l) <- raw.(!i) land !m <> 0;
-        incr l; if !l >= 7 * 24 then l := !l - 7 * 24;
+        incr l; if !l >= 7 * 24 then l := !l - 7 * 24; (* FIXME? *)
         m := !m lsl 1
       done;
       incr i; (* next input byte *)
