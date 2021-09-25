@@ -16,7 +16,8 @@ let locate ~bias d h =
   {index = d * 3 + h / 8; mask = 1 lsl (h land 7)}
 
 class wrapper bias raw = object(self)
-  method array = raw
+  method to_string =
+    Array.map char_of_int raw |> Array.to_seq |> String.of_seq
 
   method get d h =
     let {index; mask} = locate ~bias d h in
