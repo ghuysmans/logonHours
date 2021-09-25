@@ -13,15 +13,7 @@ let dump l =
 
 let () =
   let bias = 1 in
-  let w = new wrapper bias [|
-    0; 0; 0;
-    0b10000000; 0b11111111; 0b00000000;
-    0b10000000; 0b11111111; 0b00000000;
-    0b10000000; 0b00001111; 0b00000000;
-    0b10000000; 0b11111111; 0b00000000;
-    0b10000000; 0b11111111; 0b00000000;
-    0; 0; 0;
-  |] in
+  let w = of_string ~bias (really_input_string stdin 21) in
   let l = w#to_local in
   dump l;
   let d = Day.of_string Sys.argv.(1) in

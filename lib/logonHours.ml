@@ -52,3 +52,9 @@ class wrapper bias raw = object(self)
     );
     local
 end
+
+let of_string ~bias s =
+  if String.length s = 21 then
+    String.to_seq s |> Array.of_seq |> Array.map int_of_char |> new wrapper bias
+  else
+    failwith "LogonHours.of_string: invalid length"
