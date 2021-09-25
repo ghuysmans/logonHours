@@ -1,1 +1,4 @@
-(executable (name main) (libraries logonhours))
+(executable
+ (name main)
+ (public_name logonHours)
+ (libraries logonhours cmdliner))
