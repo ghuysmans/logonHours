@@ -54,8 +54,6 @@ type interval = {
   until: int * int;
 }
 
-let time_of_string s = Scanf.sscanf s "%d:%d" (fun h m -> h, m)
-
 let (let+) x f =
   match x with
   | None -> None
@@ -70,10 +68,8 @@ let intervals =
       | [range] -> Some (None, range)
       | _ -> None
     in
-    let+ from, until =
-      match String.split_on_char '-' range with
-      | [from; until] -> Some (time_of_string from, time_of_string until)
-      | _ -> None
+    let from, until =
+      Scanf.sscanf range "%d:%d-%d:%d" (fun h m h' m' -> (h, m), (h', m'))
     in
     Some {day; from; until}
   ) in
