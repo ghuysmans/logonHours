@@ -82,12 +82,11 @@ let main inp bias lang clear output intervals =
     | English -> Day.to_string
     | French -> Day.to_french
   in
-  let inp =
+  let w =
     match inp with
-    | None -> stdin
-    | Some f -> open_in f
+    | None -> make ~bias
+    | Some f -> of_string ~bias (really_input_string (open_in f) 21)
   in
-  let w = of_string ~bias (really_input_string inp 21) in
   intervals |> List.iter (fun {day; from; until} ->
     let days =
       match day with
