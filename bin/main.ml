@@ -11,14 +11,13 @@ let dump lang l =
     | English -> american, to_string
     | French -> european, to_french
   in
-  print_endline "    0123456789AB0123456789AB";
+  Printf.printf "    0123456789AB0123456789AB\n";
   days |> List.iter (fun d ->
-    print_string (f d);
-    print_char ' ';
+    Printf.printf "%s " (f d);
     for h = 0 to 23 do
-      print_char (if l.(Day.to_int d * 24 + h) then '1' else '0')
+      Printf.printf "%c" (if l.(Day.to_int d * 24 + h) then '1' else '0')
     done;
-    print_newline ()
+    Printf.printf "\n"
   )
 
 open Cmdliner
