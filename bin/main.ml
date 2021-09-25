@@ -1,14 +1,14 @@
 open LogonHours
 
 let dump l =
-  for d = 0 to 6 do
-    print_int d;
+  Day.european |> List.iter (fun d ->
+    print_string (Day.to_string d);
     print_char ' ';
     for h = 0 to 23 do
-      print_char (if l.(d * 24 + h) then '1' else '0')
+      print_char (if l.(Day.to_int d * 24 + h) then '1' else '0')
     done;
     print_newline ()
-  done
+  )
 
 
 let () =

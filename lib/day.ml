@@ -25,3 +25,24 @@ let of_string = function
   | "Sat" | "Sam" | (* "S" | *) "Sa" -> Saturday
   | "Sun" | "Dim" | "D" | "Di" -> Sunday
   | _ -> failwith "Day.of_string"
+
+let to_string = function
+  | Monday -> "Mon"
+  | Tuesday -> "Tue"
+  | Wednesday -> "Wed"
+  | Thursday -> "Thu"
+  | Friday -> "Fri"
+  | Saturday -> "Sat"
+  | Sunday -> "Sun"
+
+let to_french = function
+  | Monday -> "Lun"
+  | Tuesday -> "Mar"
+  | Wednesday -> "Mer"
+  | Thursday -> "Jeu"
+  | Friday -> "Ven"
+  | Saturday -> "Sam"
+  | Sunday -> "Dim"
+
+let american = [Sunday; Monday; Tuesday; Wednesday; Thursday; Friday; Saturday]
+let european = [Monday; Tuesday; Wednesday; Thursday; Friday; Saturday; Sunday]
