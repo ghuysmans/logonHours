@@ -80,3 +80,24 @@ let%test "utc" =
 let%test "l-6" = ignore (make ~bias:(-6))#to_local; true
 let%test "l0" = ignore (make ~bias:0)#to_local; true
 let%test "l1" = ignore (make ~bias:1)#to_local; true
+
+let interval (h, m) (h', m') =
+  if h = h' && m >= m' || (* correctness *)
+     h > h' (* ensures termination *) then
+    []
+  else
+    let upper = if m' = 0 then h' else h' + 1 in
+    let rec f acc h =
+      if h = upper then
+        acc
+      else
+        f (h :: acc) (h + 1)
+    in
+    f [] h
+
+let%test "i reversed" = interval (1, 0) (0, 0) = []
+let%test "i empty" = interval (0, 0) (0, 0) = []
+let%test "i <1" = interval (0, 0) (0, 15) = [0]
+let%test "i =1" = interval (0, 0) (1, 0) = [0]
+let%test "i =2" = interval (0, 0) (2, 0) = [1; 0]
+let%test "i >2" = interval (0, 0) (2, 10) = [2; 1; 0]
