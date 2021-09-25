@@ -1,9 +1,19 @@
 open LogonHours
 
+type lang =
+  | English
+  | French
+
 let dump lang l =
+  let days, f =
+    let open Day in
+    match lang with
+    | English -> american, to_string
+    | French -> european, to_french
+  in
   print_endline "    0123456789AB0123456789AB";
-  Day.european |> List.iter (fun d ->
-    print_string (lang d);
+  days |> List.iter (fun d ->
+    print_string (f d);
     print_char ' ';
     for h = 0 to 23 do
       print_char (if l.(Day.to_int d * 24 + h) then '1' else '0')
@@ -20,10 +30,6 @@ let inp =
 let bias =
   let doc = "bias, in hours" in
   Arg.(required & opt (some int) None & info ~doc ["b"; "bias"])
-
-type lang =
-  | English
-  | French
 
 let lang =
   let doc = "output language" in
@@ -77,11 +83,6 @@ let intervals =
   Arg.(value & opt_all c [] & info ~doc ["i"; "interval"])
 
 let main inp bias lang clear output intervals =
-  let lang =
-    match lang with
-    | English -> Day.to_string
-    | French -> Day.to_french
-  in
   let w =
     match inp with
     | None -> make ~bias
