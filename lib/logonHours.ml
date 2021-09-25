@@ -59,3 +59,7 @@ let of_string ~bias s =
     String.to_seq s |> Array.of_seq |> Array.map int_of_char |> new wrapper bias
   else
     failwith "LogonHours.of_string: invalid length"
+
+let make ~bias =
+  let raw = Array.make 21 0 in
+  new wrapper bias raw
