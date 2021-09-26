@@ -1,0 +1,5 @@
+(executable
+ (name client)
+ (modes js)
+ (libraries logonhours smartschool)
+ (preprocess (pps js_of_ocaml-ppx)))
