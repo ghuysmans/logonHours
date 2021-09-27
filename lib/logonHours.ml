@@ -1,4 +1,5 @@
 module Day = Day
+module Lexer = Lexer
 
 type t = {
   index: int;

@@ -1,3 +1,4 @@
+(ocamllex (modules lexer))
 (library
  (name logonHours)
  (public_name logonhours)

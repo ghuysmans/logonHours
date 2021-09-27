@@ -43,10 +43,6 @@ let lang =
   let c = Arg.enum ["en", English; "fr", French] in
   Arg.(value & opt c English & info ~doc ["lang"; "language"])
 
-let clear =
-  let doc = "deny logon during the specified intervals" in
-  Arg.(value & flag & info ~doc ["d"; "deny"])
-
 type output =
   | Escaped
   | Raw
@@ -61,41 +57,26 @@ let output =
   ] in
   Arg.(value & opt c Escaped & info ~doc ["f"; "format"])
 
-type interval = {
-  day: Day.t option;
-  from: int * int;
-  until: int * int;
-}
-
 let (let+) x f =
   match x with
   | None -> None
   | Some x -> f x
 
 let intervals =
-  let doc = "add interval: (day,)?hh:mm-hh:mm" in
+  let doc = "update interval: [deny] [day,]hh:mm-hh:mm" in
   let parser = Arg.parser_of_kind_of_string ~kind:"interval" (fun x ->
-    let+ day, range =
-      match String.split_on_char ',' x with
-      | [day; range] -> Some (Some (Day.of_string day), range)
-      | [range] -> Some (None, range)
-      | _ -> None
-    in
-    let from, until =
-      Scanf.sscanf range "%d:%d-%d:%d" (fun h m h' m' -> (h, m), (h', m'))
-    in
-    Some {day; from; until}
+    Some (Lexer.command (Lexing.from_string x))
   ) in
   let c = Arg.conv (parser, fun _ _ -> () (* FIXME? *)) in
   Arg.(value & opt_all c [] & info ~doc ["i"; "interval"])
 
-let main inp bias lang clear output intervals =
+let main inp bias lang output intervals =
   let w =
     match inp with
     | None -> make ~bias
     | Some f -> of_string ~bias (really_input_string (open_in f) 21)
   in
-  intervals |> List.iter (fun {day; from; until} ->
+  intervals |> List.iter (fun (allow, Lexer.{day; from; until}) ->
     let days =
       match day with
       | None -> Day.american
@@ -103,10 +84,10 @@ let main inp bias lang clear output intervals =
     in
     days |> List.iter (fun d ->
       interval from until |> List.iter (fun h ->
-        if clear then
-          w#clear d h
-        else
+        if allow then
           w#set d h
+        else
+          w#clear d h
       )
     )
   );
@@ -119,6 +100,6 @@ let main inp bias lang clear output intervals =
 let () =
   Term.(exit @@ eval @@
     let doc = "logonHours AD attribute manipulation tool" in
-    const main $ inp $ bias $ lang $ clear $ output $ intervals,
+    const main $ inp $ bias $ lang $ output $ intervals,
     info "logonHours" ~doc
   )
