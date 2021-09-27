@@ -16,6 +16,7 @@ let to_int = function
   | Friday -> 5
   | Saturday -> 6
 
+(* FIXME redundant *)
 let of_string = function
   | "Mon" | "Lun" | "L" | "Lu" -> Monday
   | "Tue" | "Mar" | "Ma" -> Tuesday

@@ -1,4 +1,5 @@
 (ocamllex (modules lexer))
+(ocamlyacc (modules parser))
 (library
  (name logonHours)
  (public_name logonhours)

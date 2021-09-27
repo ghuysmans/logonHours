@@ -1,11 +1,3 @@
-{
-  type interval = {
-    day: Day.t option;
-    from: int * int;
-    until: int * int;
-  }
-}
-
 let day = "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat" | "Sun" |
           "Lun" | "Mar" | "Mer" | "Jeu" | "Ven" | "Sam" | "Dim" as d
 let hours = ['0'-'9'] | ['0'-'1']['0'-'9'] | '2'['0'-'3']
@@ -29,7 +21,7 @@ rule interval = parse
       | _ -> assert false (* disjoint *)
     in
     {
-      day = Option.map Day.of_string d;
+      Ast.day = Option.map Day.of_string d;
       from = i h, f m m';
       until =
         match h2 with
@@ -37,9 +29,11 @@ rule interval = parse
         | Some h2 -> i h2, f m2 m2'
     }
   }
-and command = parse
-| ("allow"|"a")? ' '* { true, interval lexbuf }
-| ("deny"|"d"|"!") ' '* { false, interval lexbuf }
+and tokenize = parse
+| ("allow"|"a")? ' '* { Parser.COMMAND (true, interval lexbuf) }
+| ("deny"|"d"|"!") ' '* { COMMAND (false, interval lexbuf) }
+| '\r'? '\n' { NL }
+| eof { EOF }
 
 {
   let l x = interval (Lexing.from_string x)

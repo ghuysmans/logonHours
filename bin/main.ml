@@ -65,7 +65,9 @@ let (let+) x f =
 let intervals =
   let doc = "update interval: [deny] [day,]hh:mm-hh:mm" in
   let parser = Arg.parser_of_kind_of_string ~kind:"interval" (fun x ->
-    Some (Lexer.command (Lexing.from_string x))
+    match Lexer.tokenize (Lexing.from_string x) with
+    | COMMAND c -> Some c
+    | _ -> None
   ) in
   let c = Arg.conv (parser, fun _ _ -> () (* FIXME? *)) in
   Arg.(value & opt_all c [] & info ~doc ["i"; "interval"])
@@ -76,7 +78,7 @@ let main inp bias lang output intervals =
     | None -> make ~bias
     | Some f -> of_string ~bias (really_input_string (open_in f) 21)
   in
-  intervals |> List.iter (fun (allow, Lexer.{day; from; until}) ->
+  intervals |> List.iter (fun (allow, Ast.{day; from; until}) ->
     let days =
       match day with
       | None -> Day.american
