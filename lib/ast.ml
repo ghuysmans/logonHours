@@ -4,6 +4,8 @@ type interval = {
   until: int * int;
 }
 
-type command = bool * interval
+type command =
+  | Allow of interval
+  | Deny of interval
 
 type script = command list

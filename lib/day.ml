@@ -16,17 +16,6 @@ let to_int = function
   | Friday -> 5
   | Saturday -> 6
 
-(* FIXME redundant *)
-let of_string = function
-  | "Mon" | "Lun" | "L" | "Lu" -> Monday
-  | "Tue" | "Mar" | "Ma" -> Tuesday
-  | "Wed" | "Mer" | "Me" -> Wednesday
-  | "Thu" | "Jeu" | "J" | "Je" -> Thursday
-  | "Fri" | "Ven" | "V" | "Ve" | "Vdd" -> Friday
-  | "Sat" | "Sam" | (* "S" | *) "Sa" -> Saturday
-  | "Sun" | "Dim" | "D" | "Di" -> Sunday
-  | _ -> failwith "Day.of_string"
-
 let to_string = function
   | Monday -> "Mon"
   | Tuesday -> "Tue"

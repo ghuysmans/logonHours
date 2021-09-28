@@ -62,23 +62,21 @@ let (let+) x f =
   | None -> None
   | Some x -> f x
 
-let intervals =
-  let doc = "update interval: [deny] [day,]hh:mm-hh:mm" in
+let commands =
+  let doc = "update interval: [allow|deny] [day,]hh:mm-hh:mm" in
   let parser = Arg.parser_of_kind_of_string ~kind:"interval" (fun x ->
-    match Lexer.tokenize (Lexing.from_string x) with
-    | COMMAND c -> Some c
-    | _ -> None
+    Some (Parser.command Lexer.tokenize (Lexing.from_string x))
   ) in
   let c = Arg.conv (parser, fun _ _ -> () (* FIXME? *)) in
-  Arg.(value & opt_all c [] & info ~doc ["i"; "interval"])
+  Arg.(value & opt_all c [] & info ~doc ["i"; "interval"; "e"; "execute"])
 
-let main inp bias lang output intervals =
+let main inp bias lang output commands =
   let w =
     match inp with
     | None -> make ~bias
     | Some f -> of_string ~bias (really_input_string (open_in f) 21)
   in
-  intervals |> List.iter (fun (allow, Ast.{day; from; until}) ->
+  let update allow Ast.{day; from; until} =
     let days =
       match day with
       | None -> Day.american
@@ -92,6 +90,10 @@ let main inp bias lang output intervals =
           w#clear d h
       )
     )
+  in
+  commands |> List.iter (function
+    | Ast.Allow i -> update true i
+    | Deny i -> update false i
   );
   match output with
   | Escaped -> print_endline w#to_escaped
@@ -102,6 +104,6 @@ let main inp bias lang output intervals =
 let () =
   Term.(exit @@ eval @@
     let doc = "logonHours AD attribute manipulation tool" in
-    const main $ inp $ bias $ lang $ output $ intervals,
+    const main $ inp $ bias $ lang $ output $ commands,
     info "logonHours" ~doc
   )

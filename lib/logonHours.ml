@@ -3,6 +3,12 @@ module Lexer = Lexer
 module Parser = Parser
 module Ast = Ast
 
+let l x = Parser.command Lexer.tokenize (Lexing.from_string x)
+let%test _ = l "8:00" = Ast.Allow {day = None; from = 8,0; until = 9,0}
+let%test _ = l "Tue 8:00" = Ast.Allow {day = Some Day.Tuesday; from = 8,0; until = 9,0}
+let%test _ = l "Tue, 8:00" = Ast.Allow {day = Some Day.Tuesday; from = 8,0; until = 9,0}
+let%test _ = l "8:00-9:00" = Ast.Allow {day = None; from = 8,0; until = 9,0}
+
 type t = {
   index: int;
   mask: int;
