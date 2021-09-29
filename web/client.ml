@@ -1,17 +1,6 @@
 open Js_of_ocaml
 open Smartschool
 
-let weekday {Glical.Datetime.year; month; day; _} =
-  match (new%js Js.date_day year (month - 1) day)##getDay with
-  | 0 -> LogonHours.Day.Sunday
-  | 1 -> Monday
-  | 2 -> Tuesday
-  | 3 -> Wednesday
-  | 4 -> Thursday
-  | 5 -> Friday
-  | 6 -> Saturday
-  | _ -> failwith "getDay"
-
 let process inp add_course print_attribute =
   My_form.get_files inp |>
   List.iter (fun f ->
@@ -26,14 +15,9 @@ let process inp add_course print_attribute =
           List.sort_uniq compare |>
           List.iter (fun (subject, class_) -> add_course subject class_);
         List.sort compare l |>
-          List.iter (fun {Ical.event = {dtstart; dtend; _}; _} ->
-            let d = weekday dtstart in
-            if d = weekday dtend then
-              LogonHours.interval (dtstart.hours, dtstart.minutes)
-                                  (dtend.hours, dtend.minutes) |>
-              List.iter (w#set d)
-            else
-              failwith "a course can't span two days"
+          List.iter (fun e ->
+            let {Date.day; from; until} = Date.interval_of_event e in
+            LogonHours.interval from until |> List.iter (w#set (Option.get day))
           );
         print_attribute w#to_escaped
       end;

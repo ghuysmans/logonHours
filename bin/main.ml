@@ -70,12 +70,6 @@ let class_ =
   (* TODO opt_all? *)
   Arg.(value & opt (some string) None & info ~doc ["class"])
 
-type interval = {
-  day: Day.t option;
-  from: int * int;
-  until: int * int;
-}
-
 let (let+) x f =
   match x with
   | None -> None
@@ -93,27 +87,10 @@ let intervals =
     let from, until =
       Scanf.sscanf range "%d:%d-%d:%d" (fun h m h' m' -> (h, m), (h', m'))
     in
-    Some {day; from; until}
+    Some {Date.day; from; until}
   ) in
   let c = Arg.conv (parser, fun _ _ -> () (* FIXME? *)) in
   Arg.(value & opt_all c [] & info ~doc ["i"; "interval"])
-
-let weekday {Glical.Datetime.year; month; day; _} =
-  let open Unix in
-  let tm = {
-    tm_sec = 0; tm_min = 0; tm_hour = 0;
-    tm_mday = day; tm_mon = month - 1; tm_year = year - 1900;
-    tm_wday = 0; tm_yday = 0; tm_isdst = false;
-  } in
-  match (snd @@ mktime tm).tm_wday with
-  | 0 -> Day.Sunday
-  | 1 -> Monday
-  | 2 -> Tuesday
-  | 3 -> Wednesday
-  | 4 -> Thursday
-  | 5 -> Friday
-  | 6 -> Saturday
-  | _ -> failwith "mktime"
 
 let main inp bias lang clear output import class_ intervals =
   let w =
@@ -133,18 +110,9 @@ let main inp bias lang clear output import class_ intervals =
       | None -> fun l -> l
       | Some c -> List.filter (fun {Ical.class_; _} -> class_ = c)
       end |>
-      List.map (fun {Ical.event = {dtstart; dtend; _}; _} ->
-        let w = weekday dtstart in
-        if w = weekday dtend then {
-          day = Some w;
-          from = dtstart.hours, dtstart.minutes;
-          until = dtend.hours, dtend.minutes
-        }
-        else
-          failwith "a course can't span two days"
-      )
+      List.map Date.interval_of_event
   in
-  intervals |> List.iter (fun {day; from; until} ->
+  intervals |> List.iter (fun {Date.day; from; until} ->
     let days =
       match day with
       | None -> Day.american
