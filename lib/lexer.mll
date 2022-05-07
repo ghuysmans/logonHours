@@ -1,16 +1,48 @@
+{
+type t =
+  | Any
+  | English
+  | French
+  | Mixed
+
+let lang = ref Any
+
+let check l =
+  match !lang, l with
+  | Any, `English -> lang := English
+  | Any, `French-> lang := French
+  | English, `English | French, `French | Mixed, _ -> ()
+  | English, `French | French, `English ->
+    prerr_endline "warning: mixed languages"; (* TODO loc? *)
+    lang := Mixed
+
+let en (x : Parser.token) = check `English; x
+let fr (x : Parser.token) = check `French; x
+}
+
 let hours = ['0'-'9'] | ['0'-'1']['0'-'9'] | '2'['0'-'3']
 let minutes = ['0'-'5']['0'-'9']
 
 rule tokenize = parse
-| "allow" | "a" { Parser.ALLOW }
-| "deny" | "d" | "!" { DENY }
-| "Mon" | "Lun" | "L" | "Lu" { DAY Monday }
-| "Tue" | "Mar" | "Ma" { DAY Tuesday }
-| "Wed" | "Mer" | "Me" { DAY Wednesday }
-| "Thu" | "Jeu" | "J" | "Je" { DAY Thursday }
-| "Fri" | "Ven" | "V" | "Ve" | "Vdd" { DAY Friday }
-| "Sat" | "Sam" | (* "S" | *) "Sa" { DAY Saturday }
-| "Sun" | "Dim" | "D" | "Di" { DAY Sunday }
+| "allow"                    { en ALLOW }
+| "autoriser"                { fr ALLOW }
+| "a"                        { ALLOW }
+| "deny" | "d"               { en DENY }
+| "!"                        { DENY }
+| "Mon"                      { en (DAY Monday) }
+| "Lun" | "L" | "Lu"         { fr (DAY Monday) }
+| "Tue"                      { en (DAY Tuesday) }
+| "Mar" | "Ma"               { fr (DAY Tuesday) }
+| "Wed"                      { en (DAY Wednesday) }
+| "Mer" | "Me"               { fr (DAY Wednesday) }
+| "Thu"                      { en (DAY Thursday) }
+| "Jeu" | "J" | "Je"         { fr (DAY Thursday) }
+| "Fri"                      { en (DAY Friday) }
+| "Ven" | "V" | "Ve" | "Vdd" { fr (DAY Friday) }
+| "Sat"                      { en (DAY Saturday) }
+| "Sam" | (* "S" | *) "Sa"   { fr (DAY Saturday) }
+| "Sun"                      { en (DAY Sunday) }
+| "Dim" | "D" | "Di"         { fr (DAY Sunday) }
 | ',' { COMMA }
 | (hours as h) (':' (minutes as m) | 'h' (minutes as m')?) {
   TIME (
