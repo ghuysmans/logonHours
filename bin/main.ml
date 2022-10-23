@@ -100,8 +100,10 @@ let main inp bias lang output import class_ commands =
 
 
 let () =
-  Term.(exit @@ eval @@
+  let info =
     let doc = "logonHours AD attribute manipulation tool" in
-    const main $ inp $ bias $ lang $ output $ import $ class_ $ commands,
-    info "logonHours" ~doc
+    Cmd.info "logonHours" ~doc
+  in
+  exit @@ Cmd.eval @@ Cmd.v info @@ Term.(
+    const main $ inp $ bias $ lang $ output $ import $ class_ $ commands
   )
